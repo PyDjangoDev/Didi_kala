@@ -159,5 +159,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'didikala.otp@gmail.com'
-EMAIL_HOST_PASSWORD = 'zlzm lurw dqfg gdag'  
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')  
 DEFAULT_FROM_EMAIL = 'didikala.otp@gmail.com'
