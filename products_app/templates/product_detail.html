@@ -34,18 +34,19 @@ didikala | product details
                     </ul>
                     <div class="product-timeout position-relative pt-5 mb-3">
 
-                        {% if product.off and off_deadline %}
+                        {% if product.off %}
                         <div class="promotion-badge">
                             فروش ویژه
                         </div>
-                        <div class="countdown-timer" countdown data-date="{{ off_deadline|date:'Y/m/d H:i:s' }}">
+                        {% comment %} <div class="countdown-timer" countdown data-date="{{ off_deadline|date:'Y/m/d H:i:s' }}">
                             <span data-days>0</span>:
                             <span data-hours>0</span>:
                             <span data-minutes>0</span>:
                             <span data-seconds>0</span>
-                        </div>
+                        </div> {% endcomment %}
                         {% endif %}
 
+                        
                     </div>
                     <div class="product-gallery">
                         <span class="badge">پر فروش</span>
