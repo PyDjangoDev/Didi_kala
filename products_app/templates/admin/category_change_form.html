@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block content %}
+{% comment %} <h1>{{ original.title }}</h1> {% endcomment %}
+
+<h2>محصولات مرتبط</h2>
+
+{% if original.products.all %}
+    <ul>
+
+    {% for product in original.products.all %}
+        <li>
+            <a href="{% url 'admin:products_app_product_change' product.pk %}">{{ product.title }}</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>هیچ محصولی در این دسته بندی یافت نشد.</p>
+{% endif %}
+
+<hr>
+
+{{ block.super }}
+{% endblock %}
+
