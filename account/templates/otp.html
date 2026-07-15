@@ -25,6 +25,123 @@
     <!-- Main CSS File -->
     <link rel="stylesheet" href="/static/assets/css/main.css">
     <link rel="stylesheet" href="/static/assets/css/colors/default.css" id="colorswitch">
+    
+    <style>
+        /* استایل‌های خطا */
+        .alert {
+            border: none !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            min-height: 70px; /* ارتفاع ثابت برای باکس */
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
+            color: #856404 !important;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb) !important;
+            color: #721c24 !important;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #b7ebc5) !important;
+            color: #155724 !important;
+        }
+
+        .alert .close {
+            opacity: 0.7;
+            padding: 0.75rem 1rem;
+        }
+
+        .alert .close:hover {
+            opacity: 1;
+        }
+
+        /* انیمیشن برای ورودی‌های خطا */
+        .line-number.error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+
+        /* پیشرفت بار برای نمایش تعداد تلاش */
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+
+        /* استایل شمارنده */
+        #countdown-verify-end {
+            font-weight: bold;
+            color: #f7858d;
+            min-width: 40px;
+            display: inline-block;
+        }
+
+        /* غیرفعال کردن دکمه دریافت مجدد در ابتدا */
+        .btn-resend-otp {
+            pointer-events: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-resend-otp.active {
+            pointer-events: auto;
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        /* استایل ثابت برای باکس پیام */
+        .message-light {
+            min-height: 100px; /* ارتفاع ثابت برای کل باکس */
+        }
+
+        .alert-default {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+            color: #0d47a1 !important;
+            border: 1px solid #90caf9 !important;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        /* لینک ویرایش شماره */
+        .btn-link-border {
+            color: #f7858d;
+            text-decoration: none;
+            border-bottom: 2px dashed #f7858d;
+            padding-bottom: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-link-border:hover {
+            color: #e0606a;
+            border-bottom-color: #e0606a;
+            text-decoration: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -41,18 +158,88 @@
                             <div class="section-title title-wide mb-1 no-after-title-wide">
                                 <h2 class="font-weight-bold">تایید شماره</h2>
                             </div>
+                            
+                            <!-- بخش نمایش پیام‌ها با ارتفاع ثابت -->
                             <div class="message-light">
-                                برای شماره همراه 09999999999 کد تایید ارسال گردید
-                                <br>
-                                <a href="#" class="btn-link-border">
+                                <!-- باکس پیش‌فرض (همیشه نمایش داده میشه) -->
+                                <div class="alert alert-default alert-dismissible fade show" role="alert" id="defaultMessage" style="border-radius: 10px; padding: 12px 20px; margin-bottom: 15px; min-height: 70px;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="mdi mdi-information-outline alert-icon"></i>
+                                        <div class="alert-content">
+                                            <strong>📧 راهنما</strong>
+                                            <span style="margin-right: 5px;">
+                                                کد ۵ رقمی ارسال شده به ایمیل خود را وارد کنید
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- باکس خطا (مخفی در حالت عادی) -->
+                                {% if error %}
+                                    <div class="alert alert-{% if error_type == 'max_attempts' %}danger{% else %}warning{% endif %} alert-dismissible fade show" role="alert" id="errorMessage" style="border-radius: 10px; padding: 12px 20px; margin-bottom: 15px; min-height: 70px;">
+                                        <div class="d-flex align-items-center">
+                                            <i class="mdi mdi-alert-circle alert-icon"></i>
+                                            <div class="alert-content">
+                                                <strong>
+                                                    {% if error_type == 'empty' %}
+                                                        ⚠️ خطا
+                                                    {% elif error_type == 'invalid_length' %}
+                                                        ⚠️ خطا
+                                                    {% elif error_type == 'wrong_code' %}
+                                                        ❌ کد اشتباه
+                                                    {% elif error_type == 'max_attempts' %}
+                                                        🚫 محدودیت تلاش
+                                                    {% endif %}
+                                                </strong>
+                                                <span style="margin-right: 5px;">{{ error }}</span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- مخفی کردن پیام پیش‌فرض وقتی خطا هست -->
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const defaultMsg = document.getElementById('defaultMessage');
+                                            if (defaultMsg) {
+                                                defaultMsg.style.display = 'none';
+                                            }
+                                        });
+                                    </script>
+                                {% endif %}
+                                
+                                <!-- نمایش تعداد تلاش‌ها -->
+                                {% if remaining_attempts %}
+                                    <div class="progress" style="height: 5px; margin-bottom: 15px; border-radius: 10px;">
+                                        <div class="progress-bar bg-{% if remaining_attempts == 1 %}danger{% elif remaining_attempts == 2 %}warning{% else %}success{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {% widthratio remaining_attempts 3 100 %}%;" 
+                                             aria-valuenow="{{ remaining_attempts }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="3">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- نمایش ایمیل -->
+                                {% if email %}
+                                    <div class="text-muted small mb-2">
+                                        <i class="mdi mdi-email-outline"></i>
+                                        کد تایید به ایمیل <strong>{{ email }}</strong> ارسال شد
+                                    </div>
+                                {% endif %}
+
+                                <!-- لینک ویرایش شماره -->
+                                <a href="{% url 'register' %}" class="btn-link-border">
+                                    <i class="mdi mdi-pencil"></i>
                                     ویرایش شماره
                                 </a>
-                                <br>
-                                <br>
-                                
-                                <h6>کد تایید : {{otp}} , مدت اعتبار کد 3 دقیقه</h6>
                             </div>
-                            <form  method='post'>
+                            
+                            <!-- فرم اصلی -->
+                            <form method="post">
                                 {% csrf_token %}
                                 <div class="form-row-title">
                                     <h3>کد تایید را وارد کنید</h3>
@@ -60,33 +247,38 @@
                                 <div class="form-row">
                                     <div class="numbers-verify">
                                         <div class="lines-number-input">
-                                            <input type="text" class="line-number" maxlength="1" name='input1' autofocus="">
-                                            <input type="text" class="line-number" maxlength="1" name='input2' >
-                                            <input type="text" class="line-number" maxlength="1" name='input3' >
-                                            <input type="text" class="line-number" maxlength="1" name='input4' >
-                                            <input type="text" class="line-number" maxlength="1" name='input5' >
+                                            <input type="text" class="line-number" maxlength="1" name="input1" autofocus>
+                                            <input type="text" class="line-number" maxlength="1" name="input2">
+                                            <input type="text" class="line-number" maxlength="1" name="input3">
+                                            <input type="text" class="line-number" maxlength="1" name="input4">
+                                            <input type="text" class="line-number" maxlength="1" name="input5">
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="form-row mt-3">
                                     <div class="d-flex align-items-center">
-                                        <span class="text-primary btn-link-border ml-1">دریافت مجدد کد تایید</span>
+                                        <span class="text-primary btn-link-border ml-1 btn-resend-otp" id="resendOtpBtn">
+                                            دریافت مجدد کد تایید
+                                        </span>
                                         <span>(</span>
-                                        <p id="countdown-verify-end"></p>
+                                        <span id="countdown-verify-end">2:00</span>
                                         <span>)</span>
                                     </div>
                                 </div>
+                                
                                 <div class="form-row mt-3">
-                                    <button class="btn-primary-cm btn-with-icon mx-auto w-100">
+                                    <button class="btn-primary-cm btn-with-icon mx-auto w-100" type="submit">
                                         <i class="fad fa-arrow-right"></i>
                                         تایید و ادامه
                                     </button>
                                 </div>
                             </form>
+                            
                             <div class="form-footer mt-3">
                                 <div>
                                     <span class="font-weight-bold">کاربر جدید هستید؟</span>
-                                    <a href="#" class="mr-3 mt-2">ثبت نام در دیدیکالا</a>
+                                    <a href="{% url 'register' %}" class="mr-3 mt-2">ثبت نام در دیدیکالا</a>
                                 </div>
                             </div>
                         </div>
@@ -95,6 +287,7 @@
             </div>
         </main>
         <!-- End main-content -->
+        
         <!-- Start mini-footer -->
         <footer class="mini-footer dt-sl">
             <div class="container main-container">
@@ -123,16 +316,15 @@
         </footer>
         <!-- End mini-footer -->
     </div>
+    
     <!-- colorPanel -->
     <div id="colorswitch-option">
         <button><i class="mdi mdi-settings"></i></button>
         <ul>
-            <li class="active" data-path="/static/assets/css/colors/default.css"><span
-                    style="background-color: #f7858d;"></span></li>
+            <li class="active" data-path="/static/assets/css/colors/default.css"><span style="background-color: #f7858d;"></span></li>
             <li data-path="/static/assets/css/colors/amber-color.css"><span style="background-color: #ffab00;"></span></li>
             <li data-path="/static/assets/css/colors/blue-color.css"><span style="background-color: #2979ff;"></span></li>
-            <li data-path="/static/assets/css/colors/blue-grey-color.css"><span style="background-color: #607d8b;"></span>
-            </li>
+            <li data-path="/static/assets/css/colors/blue-grey-color.css"><span style="background-color: #607d8b;"></span></li>
             <li data-path="/static/assets/css/colors/brown-color.css"><span style="background-color: #795548;"></span></li>
             <li data-path="/static/assets/css/colors/cyan-color.css"><span style="background-color: #00bcd4;"></span></li>
             <li data-path="/static/assets/css/colors/green-color.css"><span style="background-color: #4caf50;"></span></li>
@@ -145,6 +337,7 @@
         </ul>
     </div>
     <!-- end colorPanel -->
+    
     <!-- Core JS Files -->
     <script src="/static/assets/js/vendor/jquery-3.4.1.min.js"></script>
     <script src="/static/assets/js/vendor/popper.min.js"></script>
@@ -165,29 +358,227 @@
     <script src="/static/assets/js/vendor/theia-sticky-sidebar.min.js"></script>
     <!-- Main JS File -->
     <script src="/static/assets/js/main.js"></script>
+    
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('.line-number');
-        
-        // فوکوس روی اولین اینپوت
-        inputs[0].focus();
-        
-        // حرکت به جلو
-        for (let i = 0; i < inputs.length; i++) {
-            inputs[i].addEventListener('input', function() {
-                if (this.value.length === 1 && i < inputs.length - 1) {
-                    inputs[i + 1].focus();
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.line-number');
+            const countdownElement = document.getElementById('countdown-verify-end');
+            const resendBtn = document.getElementById('resendOtpBtn');
+            const defaultMessage = document.getElementById('defaultMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // ============ مدیریت خطاها ============
+            // اگر خطایی وجود داشت، ورودی‌ها رو هایلایت کن
+            {% if error %}
+                inputs.forEach(input => {
+                    input.classList.add('error');
+                    setTimeout(() => {
+                        input.classList.remove('error');
+                    }, 600);
+                });
+                
+                // فوکوس روی اولین ورودی خالی
+                for (let input of inputs) {
+                    if (input.value === '') {
+                        input.focus();
+                        break;
+                    }
+                }
+                
+                // مخفی کردن پیام پیش‌فرض و نمایش پیام خطا
+                if (defaultMessage) {
+                    defaultMessage.style.display = 'none';
+                }
+                if (errorMessage) {
+                    errorMessage.style.display = 'flex';
+                }
+            {% else %}
+                // نمایش پیام پیش‌فرض و مخفی کردن پیام خطا
+                if (defaultMessage) {
+                    defaultMessage.style.display = 'flex';
+                }
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                }
+            {% endif %}
+            
+            // ============ فوکوس اولیه ============
+            setTimeout(() => {
+                inputs[0].focus();
+            }, 100);
+            
+            // ============ مدیریت ورودی‌ها ============
+            for (let i = 0; i < inputs.length; i++) {
+                // رویداد input - حرکت به جلو
+                inputs[i].addEventListener('input', function() {
+                    if (this.value.length === 1 && i < inputs.length - 1) {
+                        inputs[i + 1].focus();
+                    }
+                    
+                    // حذف کلاس خطا موقع تایپ
+                    this.classList.remove('error');
+                    
+                    // اگر همه ورودی‌ها پر شد، خطاهای قبلی رو مخفی کن
+                    let allFilled = true;
+                    inputs.forEach(input => {
+                        if (input.value === '') {
+                            allFilled = false;
+                        }
+                    });
+                    
+                    if (allFilled) {
+                        // مخفی کردن خطا و نمایش پیام پیش‌فرض
+                        if (defaultMessage) {
+                            defaultMessage.style.display = 'flex';
+                        }
+                        if (errorMessage) {
+                            errorMessage.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // رویداد keyup - حرکت به عقب با Backspace
+                inputs[i].addEventListener('keyup', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && i > 0) {
+                        inputs[i - 1].focus();
+                    }
+                });
+                
+                // رویداد paste - چسباندن کد کامل
+                inputs[i].addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const paste = (e.clipboardData || window.clipboardData).getData('text');
+                    const digits = paste.replace(/\D/g, '').slice(0, 5);
+                    
+                    inputs.forEach((input, index) => {
+                        if (index < digits.length) {
+                            input.value = digits[index];
+                            input.classList.remove('error');
+                        }
+                    });
+                    
+                    // فوکوس روی آخرین ورودی پر شده
+                    const lastFilledIndex = Math.min(digits.length - 1, inputs.length - 1);
+                    if (lastFilledIndex >= 0) {
+                        inputs[Math.min(lastFilledIndex + 1, inputs.length - 1)].focus();
+                    }
+                    
+                    // مخفی کردن خطا
+                    if (defaultMessage) {
+                        defaultMessage.style.display = 'flex';
+                    }
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                    }
+                });
+            }
+            
+            // ============ شمارش معکوس ============
+            let timeLeft = 120;
+            let timerInterval;
+            
+            function startCountdown() {
+                resendBtn.classList.remove('active');
+                resendBtn.style.pointerEvents = 'none';
+                resendBtn.style.opacity = '0.6';
+                
+                timerInterval = setInterval(() => {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        countdownElement.textContent = '۰:۰۰';
+                        resendBtn.classList.add('active');
+                        resendBtn.style.pointerEvents = 'auto';
+                        resendBtn.style.opacity = '1';
+                        resendBtn.style.cursor = 'pointer';
+                    }
+                    timeLeft--;
+                }, 1000);
+            }
+            
+            startCountdown();
+            
+            // ============ دریافت مجدد کد ============
+            resendBtn.addEventListener('click', function() {
+                if (this.classList.contains('active')) {
+                    fetch('/resend-otp/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            timeLeft = 120;
+                            clearInterval(timerInterval);
+                            startCountdown();
+                            showMessage('کد تایید مجدداً به ایمیل شما ارسال شد', 'success');
+                        } else {
+                            showMessage('مشکلی در ارسال مجدد کد رخ داد', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showMessage('خطا در ارتباط با سرور', 'error');
+                    });
                 }
             });
             
-            // حرکت به عقب با Backspace
-            inputs[i].addEventListener('keyup', function(e) {
-                if (e.key === 'Backspace' && this.value.length === 0 && i > 0) {
-                    inputs[i - 1].focus();
+            // ============ تابع نمایش پیام ============
+            function showMessage(text, type) {
+                const messageLight = document.querySelector('.message-light');
+                
+                // مخفی کردن پیام پیش‌فرض
+                if (defaultMessage) {
+                    defaultMessage.style.display = 'none';
                 }
-            });
-        }
-    });
+                
+                // حذف خطاهای قبلی
+                const oldAlerts = messageLight.querySelectorAll('.alert:not(#defaultMessage)');
+                oldAlerts.forEach(alert => alert.remove());
+                
+                // ساخت پیام جدید
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+                alertDiv.role = 'alert';
+                alertDiv.style.borderRadius = '10px';
+                alertDiv.style.padding = '12px 20px';
+                alertDiv.style.marginBottom = '15px';
+                alertDiv.style.minHeight = '70px';
+                alertDiv.style.display = 'flex';
+                alertDiv.style.alignItems = 'center';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center w-100">
+                        <i class="mdi mdi-${type === 'success' ? 'check-circle' : 'alert-circle'}" style="font-size: 24px; margin-left: 10px;"></i>
+                        <div class="alert-content">
+                            <strong>${type === 'success' ? '✅ موفق' : '❌ خطا'}</strong>
+                            <span style="margin-right: 5px;">${text}</span>
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-right: auto;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                `;
+                
+                // اضافه کردن پیام جدید
+                messageLight.insertBefore(alertDiv, messageLight.firstChild);
+                
+                // حذف خودکار بعد از ۵ ثانیه
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                        // نمایش مجدد پیام پیش‌فرض
+                        if (defaultMessage) {
+                            defaultMessage.style.display = 'flex';
+                        }
+                    }
+                }, 5000);
+            }
+        });
     </script>
 </body>
 

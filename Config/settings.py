@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django_render_partial',
     'home_app',
     'products_app',
-    'account'
+    'account',
+    'article'
 ]
 
 MIDDLEWARE = [
@@ -122,13 +123,41 @@ USE_I18N = True
 
 USE_TZ = True
 
-    
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-    
+
+STATIC_ROOT = BASE_DIR / 'static_cdn' 
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False 
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media' 
+
+
+
+
+CACHES = {
+    'default' : {
+        'BACKEND' : 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION' : 'unique-snowflake' , 
+    }
+}
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'didikala.otp@gmail.com'
+EMAIL_HOST_PASSWORD = 'zlzm lurw dqfg gdag'  
+DEFAULT_FROM_EMAIL = 'didikala.otp@gmail.com'

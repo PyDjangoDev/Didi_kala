@@ -6,11 +6,12 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.views import View
 from django.core.cache import cache
-from django.utils.timezone import timedelta
 from .models import User
 from utils.get_ip import get_user_ip
-from pattern_chacker import CheckPattern 
+from utils.send_email import send_email
+import jdatetime
 from .forms import RegisterForm, LoginForm
+
 
 # Create your views here.
 
@@ -40,7 +41,30 @@ class RegisterView(View):
             }
             
             cache_key = f'otp_{true_ip}'
-            cache.set(cache_key,cache_data,timeout=180)
+            
+            cache.set(cache_key,cache_data,timeout=300)
+            
+            
+            now = timezone.now()
+            persian_datetime = jdatetime.datetime.fromgregorian(datetime=now)
+            persian_datetime_str = persian_datetime.strftime('%Y/%m/%d - %H:%M')
+            
+            persian_date = persian_datetime.strftime('%d %B %Y')
+            persian_time = persian_datetime.strftime('%H:%M')
+            
+            
+            send_email(
+                subject='کد تایید فروشگاه دیدیکالا',
+                to=email,
+                context={
+                    'otp': otp,
+                    'email': email,
+                    'send_date': persian_date,  
+                    'send_time': persian_time,  
+                    'send_datetime': persian_datetime_str  
+                },
+                template_name='email_templates/send_otp.html'
+            )            
             
             return redirect('otp')
         
@@ -63,11 +87,9 @@ class OtpView(View):
     def get(self,request):
         result = self.check_user(request)
         
-        if result and isinstance(result, dict):
-            otp_code = result.get('otp', '')
-            return render(request,'otp.html',context={
-                'otp' : otp_code
-            
+        if result:
+            return render(request,'otp.html',context={        
+                                                          
             })
         else:
             return redirect('register')
@@ -80,28 +102,51 @@ class OtpView(View):
             num3 = request.POST.get('input3')
             num4 = request.POST.get('input4')
             num5 = request.POST.get('input5')
-            otp_code = result.get('otp', '')
+            email = result.get('email')
+            final_code = f'{num1}{num2}{num3}{num4}{num5}'
+            
             
             if not all([num1, num2, num3, num4, num5]):
                 return render(request, 'otp.html', {
                     'otp_error': True ,
-                    'otp': otp_code  
+                    'email': email  
                 })
             
             if len(num1) != 1 or len(num2) != 1 or len(num3) != 1 or len(num4) != 1 or len(num5) != 1 :
                 return render(request,'otp.html',{
                     'otp_len_error' : True,
-                    'otp': otp_code 
+                    'email': email 
                 })
                 
             final_code = f'{num1}{num2}{num3}{num4}{num5}'
-            if result['otp'] != final_code :
-                return render (request,'otp.html',{
-                    'otp_not_true_error' : True,
-                    'otp': otp_code 
+            if result['otp'] != final_code:
+                # شمارش تعداد تلاش‌های ناموفق
+                attempt_key = f'attempt_{result.get("ip")}'
+                attempts = cache.get(attempt_key, 0) + 1
+                cache.set(attempt_key, attempts, timeout=300)
+                
+                
+                remaining_attempts = 3 - attempts
+                if remaining_attempts <= 0:
+                    # حذف کش بعد از ۳ تلاش ناموفق
+                    ip = get_user_ip(request)
+                    cache_key = f'otp_{ip.replace(".", "_")}'
+                    cache.delete(cache_key)
+                    cache.delete(attempt_key)
+                    return render(request, 'otp.html', {
+                        'error': 'تعداد تلاش‌های شما به پایان رسیده است. لطفاً دوباره ثبت‌نام کنید',
+                        'error_type': 'max_attempts',
+                        'email': email
+                    })
+                
+                return render(request, 'otp.html', {
+                    'error': f'کد تایید اشتباه است. {remaining_attempts} تلاش دیگر دارید',
+                    'error_type': 'wrong_code',
+                    'email': email,
+                    'remaining_attempts': remaining_attempts
                 })
                 
-            user = User.objects.create_user(
+            user = User(
                 username=result['email'],
                 email=result['email'],
                 password=result['password']
@@ -109,8 +154,10 @@ class OtpView(View):
             user.save()
             
             ip = get_user_ip(request)
-            cache_key = f'otp_{ip.replace('.','_')}'
+            cache_key = f'otp_{ip.replace(".", "_")}'
             cache.delete(cache_key)
+            attempt_key = f'attempt_{result.get("ip")}'
+            cache.delete(attempt_key)
             
             return redirect('login')
         else:

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 20px;">
+    <div style="max-width: 500px; margin: 0 auto; background: #f9f9f9; padding: 30px; border-radius: 10px; border: 1px solid #eee;">
+        
+        <h2 style="color: #f7858d; text-align: center;">🔑 کد تایید</h2>
+        
+        <!-- ✅ نمایش ایمیل کاربر -->
+        <div style="
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+            border-right: 4px solid #f7858d;
+        ">
+            <span style="font-weight: bold; color: #666;">📧 ایمیل:</span>
+            <span style="color: #f7858d; font-weight: bold;">{{ email }}</span>
+        </div>
+        
+        <!-- ✅ نمایش زمان ارسال -->
+        <div style="
+            background: #f8f8f8;
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            border: 1px dashed #ddd;
+        ">
+            <span style="font-weight: bold;">🕐 زمان ارسال:</span>
+            <span style="color: #555;">
+                {% if send_datetime %}
+                    {{ send_datetime }}
+                {% else %}
+                    {{ send_date }} - {{ send_time }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <p style="text-align: center; font-size: 16px; color: #333;">
+            کد تایید شما:
+        </p>
+        
+        <div style="
+            background: #ffffff;
+            border: 3px solid #f7858d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #1a1a1a;
+            letter-spacing: 10px;
+            direction: ltr;
+            max-width: 300px;
+        ">
+            {{ otp }}
+        </div>
+        
+        <p style="text-align: center; color: #666; font-size: 14px;">
+            ⏳ این کد تا ۵ دقیقه دیگر معتبر است.
+        </p>
+        
+        <hr style="border: 1px solid #eee; margin: 20px 0;">
+        
+        <p style="text-align: center; color: #999; font-size: 12px;">
+            اگر درخواست کد را شما ثبت نکرده‌اید، این ایمیل را نادیده بگیرید.
+        </p>
+        
+        <!-- ✅ اطلاعات اضافی -->
+        <div style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff5f5;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            border: 1px solid #fce4e4;
+        ">
+            <p style="margin: 0;">
+                🔒 این کد برای <strong style="color: #f7858d;">{{ email }}</strong> صادر شده است.
+            </p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">
+                هرگز این کد را در اختیار دیگران قرار ندهید.
+            </p>
+            <p style="margin: 5px 0 0 0; font-size: 11px; color: #bbb;">
+                ارسال شده در تاریخ {{ send_date }} ساعت {{ send_time }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
