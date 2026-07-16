@@ -4,9 +4,15 @@ from django.http import Http404
 # Create your views here.
 
 def products_app_view(request):
-    products_list = Product.objects.all()  
+    products_list = Product.objects.filter(
+        is_active=True,
+        is_delete=False
+    ).exclude(
+        off__gt=0  # حذف محصولات با تخفیف
+    )
     return render (request,template_name='products.html',context={
-        'products' : products_list
+        'products' : products_list,
+        'baner' : True
         
     })
     

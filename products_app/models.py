@@ -59,14 +59,17 @@ class Product(models.Model):
         return self.title
     
     @property
-    def formatted_final_price(self):
+    def formatted_price(self):
 
+        return "{:,}".format(self.price)
+    
+    @property
+    def formatted_final_price(self):
+        
         if self.off:
             final = int(self.price * (1 - self.off / 100))
         else:
             final = self.price
-    
-
         return "{:,}".format(final)
     
     

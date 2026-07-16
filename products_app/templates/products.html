@@ -6,9 +6,58 @@ didikala | Products
 {% endblock  %}
 
 {% block content %}
+{% comment %} <!-- در products.html -->
+<div class="custom-banner-wrapper color-default">
+    <div class="custom-banner-content">
+        <div class="custom-banner-text">
+            <h3 class="banner-title">
+                <i class="mdi mdi-star-circle"></i>
+                🎉 تخفیف ویژه محصولات تابستانی
+            </h3>
+            <p class="banner-description">
+                با کد تخفیف SUMMER1403 از ۲۰٪ تا ۵۰٪ تخفیف در خریدهای بالای ۵۰۰ هزار تومان بهره‌مند شوید.
+            </p>
+            <div class="banner-features">
+                <span><i class="mdi mdi-check-circle"></i> ارسال رایگان</span>
+                <span><i class="mdi mdi-check-circle"></i> ضمانت بازگشت کالا</span>
+                <span><i class="mdi mdi-check-circle"></i> ۷ روز ضمانت</span>
+            </div>
+        </div>
+        <div class="custom-banner-icon">
+            <i class="mdi mdi-tag"></i>
+        </div>
+    </div>
+</div>
+<!-- End Custom Banner Section --> {% endcomment %}
 
-<main class="main-content dt-sl mb-3">
+{% comment %} <main class="main-content dt-sl mb-3"> {% endcomment %}
+       
+
+<main class="main-content dt-sl mb-3">   
     <div class="container main-container">
+            {% if baner %}
+                <h4 id="dynamicText" style="
+                    color: #9e9e9e; 
+                    font-size: 18px; 
+                    font-weight: 500; 
+                    padding: 10px 20px; 
+                    margin: 10px auto 20px auto; 
+                    transition: color 0.3s ease;
+                    text-align: center;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    border-right: 4px solid #9e9e9e;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    max-width: 80%;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                ">
+                    <i class="mdi mdi-hand-wave" style="font-size: 24px;"></i>
+                    سلام! برای دیدن محصولات تخفیف دار به قسمت محصولات شگفت‌انگیز بروید
+                </h4>
+            {% endif %}
         <div class="row">
             <!-- Start Sidebar -->
             <div class="col-lg-3 col-md-12 col-sm-12 sticky-sidebar filter-options-sidebar">
