@@ -30,7 +30,7 @@ class RegisterView(View):
             password = register_form.cleaned_data.get('password')
         
             otp = get_random_string(length=5,allowed_chars='0987654321')
-            
+            print(otp)
             true_ip = (get_user_ip(request)).replace('.','_')
             
             cache_data={
@@ -196,6 +196,3 @@ class LoginView(View):
 def log_out(request):
     logout(request)
     return redirect('home')
-    
-
-    

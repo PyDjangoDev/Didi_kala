@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from products_app.models import Category
-from products_app.models import Product 
+from products_app.models import Category, Product
 from django.shortcuts import render, get_object_or_404
 
 
@@ -8,37 +7,32 @@ from django.shortcuts import render, get_object_or_404
 
 def home_app_view(request):
     amazing_products = Product.objects.filter(
-    off__gt=0, 
-    is_active=True, 
-    is_delete=False
-    ).order_by('-off') 
-    return render (request,template_name='home.html',context={
-        'amazing_products' : amazing_products       
+        off__gt=0, 
+        is_active=True, 
+        is_delete=False
+    ).order_by('-off')
+    
+    return render(request, 'home.html', {
+        'amazing_products': amazing_products       
     })
-    
-    
-    
-    
-    
-    
+
+
 def header_component(request):
-
+    # دریافت تمام دسته‌بندی‌های فعال (برای MPTT)
+    categories = Category.objects.filter(is_active=True)
     
-    return render(request,template_name='header.html',context={
-
-        
+    return render(request, 'header.html', {
+        'categories': categories  # ارسال categories به هدر
     })
-    
-    
-    
+
+
 def footer_component(request):
-    categories = Category.objects.filter(parent=None, is_active=True).prefetch_related('children')  
-    return render(request,template_name='footer.html',context={
-        'categories':categories
-        
+    categories = Category.objects.filter(parent=None, is_active=True).prefetch_related('children')
+    
+    return render(request, 'footer.html', {
+        'categories': categories
     })
-    
-    
+
 
 def amazing_products_all_view(request):
     amazing_products = Product.objects.filter(
@@ -49,5 +43,5 @@ def amazing_products_all_view(request):
     
     return render(request, 'products.html', {
         'products': amazing_products,
-        'baner' : False
+        'baner': False
     })

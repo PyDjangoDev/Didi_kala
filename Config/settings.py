@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django_render_partial',
     'django.contrib.humanize',
+    'mptt',
     'home_app',
     'products_app',
     'account',

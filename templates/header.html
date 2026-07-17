@@ -5,13 +5,14 @@
            style="background-image: url(/static/assets/img/banner/large-ads.jpg)"></a>
     </div>
     <!-- End ads -->
+    
     <!-- Start topbar -->
     <div class="container main-container">
         <div class="topbar dt-sl">
             <div class="row">
                 <div class="col-lg-2 col-md-3 col-6">
                     <div class="logo-area">
-                        <a href="#">
+                        <a href="{% url 'home' %}">
                             <img src="/static/assets/img/logo.png" alt="">
                         </a>
                     </div>
@@ -64,7 +65,7 @@
                                     <i class="mdi mdi-account-edit-outline"></i>ویرایش حساب کاربری
                                 </a>
                                 <div class="dropdown-divider" role="presentation"></div>
-                                <a class="dropdown-item" href="{%url 'logout' %}">
+                                <a class="dropdown-item" href="{% url 'logout' %}">
                                     <i class="mdi mdi-logout-variant"></i>خروج
                                 </a>
                             </div>
@@ -77,30 +78,13 @@
                                 <i class="mdi mdi-account-circle-outline"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-sm dropdown-menu-left">
-                                <a class="dropdown-item" href="{%url 'login'%}">
-                                      ورود به حساب کاربری 🔐
+                                <a class="dropdown-item" href="{% url 'login' %}">
+                                    ورود به حساب کاربری 🔐
                                 </a>
-                                <a class="dropdown-item" href="{%url 'register'%}">
-                                      ثبت‌ نام 🔑
+                                <a class="dropdown-item" href="{% url 'register' %}">
+                                    ثبت‌ نام 🔑
                                 </a>
-
                             </div>
-                            {% comment %} <div class="dropdown-menu dropdown-menu-sm dropdown-menu-left">
-                                <a class="dropdown-item" href="#">
-                                    <i class="mdi mdi-account-card-details-outline"></i>پروفایل
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <span class="float-left badge badge-dark">۴</span>
-                                    <i class="mdi mdi-comment-text-outline"></i>پیغام ها
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="mdi mdi-account-edit-outline"></i>ویرایش حساب کاربری
-                                </a>
-                                <div class="dropdown-divider" role="presentation"></div>
-                                <a class="dropdown-item" href="#">
-                                    <i class="mdi mdi-logout-variant"></i>خروج
-                                </a>
-                            </div> {% endcomment %}
                         </li>
                         {% endif %}
                     </ul>
@@ -116,28 +100,31 @@
             <!-- Start Main-Menu -->
             <nav class="main-menu d-flex justify-content-md-between justify-content-end dt-sl">
                 <ul class="list hidden-sm">
+                    <!-- ===== منوی دسته‌بندی کالاها از دیتابیس ===== -->
                     <li class="list-item category-list">
                         <a href="#"><i class="fal fa-bars ml-1"></i>دسته بندی کالاها</a>
                         <ul>
-                            {% if header_categories %}
-                            {% for category in header_categories %}
-                            <li>
-                                <a href="#">{{ category.title }}</a>
-
-                                {% if category.children.all %}
-                                <ul class="sub-categories">
-                                    {% for child in category.children.all %}
-                                    <li><a href="#">{{ child.title }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
+                            {% load mptt_tags %}
+                            {% if categories %}
+                                {% recursetree categories %}
+                                    <li>
+                                        <a href="#">
+                                            <span class="parent-arrow">&lt;</span>
+                                            {{ node.title }}
+                                        </a>
+                                        {% if not node.is_leaf_node %}
+                                            <ul class="child-list">
+                                                {{ children }}
+                                            </ul>
+                                        {% endif %}
+                                    </li>
+                                {% endrecursetree %}
                             {% else %}
-                            <li>دسته بندی موجود نیست</li>
+                                <li><a href="#">دسته‌بندی وجود ندارد</a></li>
                             {% endif %}
                         </ul>
                     </li>
+                    <!-- ===== پایان منوی دسته‌بندی ===== -->
 
                     <!-- mega menu 3 column -->
                     <li class="list-item list-item-has-children mega-menu mega-menu-col-3">
@@ -209,6 +196,7 @@
                             </li>
                         </ul>
                     </li>
+                    
                     <!-- mega menu 4 column -->
                     <li class="list-item list-item-has-children mega-menu mega-menu-col-4">
                         <a class="nav-link" href="#">ابزار و اداری</a>
@@ -313,42 +301,21 @@
                             </li>
                         </ul>
                     </li>
+                    
                     <!-- dropdown-menu -->
                     <li class="list-item list-item-has-children menu-col-1">
                         <a class="nav-link" href="#">صفحات</a>
                         <ul class="sub-menu nav">
                             <li class="list-item">
-                                <a class="nav-link" href="{% url "home" %}">صفحه اصلی</a>
+                                <a class="nav-link" href="{% url 'home' %}">صفحه اصلی</a>
                             </li>
                             <li class="list-item">
-                                <a class="nav-link" href="{% url "products" %}">فروشگاه</a>
+                                <a class="nav-link" href="{% url 'products' %}">فروشگاه</a>
                             </li>
-
-                            {% comment %}
-                            <li class="list-item">
-                                <a class="nav-link" href="#">زیر منو دو</a>
-                            </li>
-                            <li class="list-item list-item-has-children">
-                                <a class="nav-link" href="#">زیر منو سه</a>
-                                <ul class="sub-menu nav">
-                                    <li class="list-item">
-                                        <a class="nav-link" href="#">زیر منو سه - یک</a>
-                                    </li>
-                                    <li class="list-item">
-                                        <a class="nav-link" href="#">زیر منو سه - دو</a>
-                                    </li>
-                                    <li class="list-item">
-                                        <a class="nav-link" href="#">زیر منو سه - سه</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            {% endcomment %}
                         </ul>
                     </li>
-                    <li class="list-item">
-                        {% comment %} <a class="nav-link" href="#">ورزش و سفر</a> {% endcomment %}
-                    </li>
                 </ul>
+                
                 <div class="nav mr-auto">
                     <div class="nav-item cart--wrapper">
                         {% if request.user.is_authenticated %}
@@ -380,14 +347,14 @@
                                             </p>
                                             <div class="header-basket-list-item-footer">
                                                 <div class="header-basket-list-item-props">
-                                                            <span class="header-basket-list-item-props-item">
-                                                                1 x
-                                                            </span>
                                                     <span class="header-basket-list-item-props-item">
-                                                                <div class="header-basket-list-item-color-badge"
-                                                                     style="background: #2196f3"></div>
-                                                                آبی
-                                                            </span>
+                                                        1 x
+                                                    </span>
+                                                    <span class="header-basket-list-item-props-item">
+                                                        <div class="header-basket-list-item-color-badge"
+                                                             style="background: #2196f3"></div>
+                                                        آبی
+                                                    </span>
                                                 </div>
                                                 <button class="header-basket-list-item-remove">
                                                     <i class="far fa-trash-alt"></i>
@@ -408,14 +375,14 @@
                                             </p>
                                             <div class="header-basket-list-item-footer">
                                                 <div class="header-basket-list-item-props">
-                                                            <span class="header-basket-list-item-props-item">
-                                                                1 x
-                                                            </span>
                                                     <span class="header-basket-list-item-props-item">
-                                                                <div class="header-basket-list-item-color-badge"
-                                                                     style="background: #212121"></div>
-                                                                سفید
-                                                            </span>
+                                                        1 x
+                                                    </span>
+                                                    <span class="header-basket-list-item-props-item">
+                                                        <div class="header-basket-list-item-color-badge"
+                                                             style="background: #212121"></div>
+                                                        سفید
+                                                    </span>
                                                 </div>
                                                 <button class="header-basket-list-item-remove">
                                                     <i class="far fa-trash-alt"></i>
@@ -436,14 +403,14 @@
                                             </p>
                                             <div class="header-basket-list-item-footer">
                                                 <div class="header-basket-list-item-props">
-                                                            <span class="header-basket-list-item-props-item">
-                                                                1 x
-                                                            </span>
                                                     <span class="header-basket-list-item-props-item">
-                                                                <div class="header-basket-list-item-color-badge"
-                                                                     style="background: #FFFFFF"></div>
-                                                                سفید
-                                                            </span>
+                                                        1 x
+                                                    </span>
+                                                    <span class="header-basket-list-item-props-item">
+                                                        <div class="header-basket-list-item-color-badge"
+                                                             style="background: #FFFFFF"></div>
+                                                        سفید
+                                                    </span>
                                                 </div>
                                                 <button class="header-basket-list-item-remove">
                                                     <i class="far fa-trash-alt"></i>
@@ -457,11 +424,11 @@
                                 <div class="header-cart-info-total">
                                     <span class="header-cart-info-total-text">مبلغ قابل پرداخت:</span>
                                     <p class="header-cart-info-total-amount">
-                                                <span class="header-cart-info-total-amount-number">
-                                                    9,500,000 <span>تومان</span></span>
+                                        <span class="header-cart-info-total-amount-number">
+                                            9,500,000 <span>تومان</span>
+                                        </span>
                                     </p>
                                 </div>
-
                                 <div>
                                     <a href="#" class="header-cart-info-submit">
                                         ثبت سفارش
@@ -471,6 +438,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <button class="btn-menu">
                     <div class="align align__justify">
                         <span></span>
@@ -478,6 +446,7 @@
                         <span></span>
                     </div>
                 </button>
+                
                 <div class="side-menu">
                     <div class="logo-nav-res dt-sl text-center">
                         <a href="#">
@@ -491,6 +460,32 @@
                         </form>
                     </div>
                     <ul class="navbar-nav dt-sl">
+                        <!-- منوی موبایل - دسته‌بندی‌ها -->
+                        <li class="sub-menu">
+                            <a href="#">دسته بندی کالاها</a>
+                            <ul>
+                                {% load mptt_tags %}
+                                {% if categories %}
+                                    {% recursetree categories %}
+                                        <li class="sub-menu">
+                                            <a href="#">
+                                                <span class="parent-arrow">&lt;</span>
+                                                {{ node.title }}
+                                            </a>
+                                            {% if not node.is_leaf_node %}
+                                                <ul class="child-list">
+                                                    {{ children }}
+                                                </ul>
+                                            {% endif %}
+                                        </li>
+                                    {% endrecursetree %}
+                                {% else %}
+                                    <li><a href="#">دسته‌بندی وجود ندارد</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <!-- پایان منوی موبایل -->
+                        
                         <li class="sub-menu">
                             <a href="#">کالای دیجیتال</a>
                             <ul>
@@ -686,4 +681,43 @@
         </div>
     </div>
     <!-- End bottom-header -->
+    
+    <!-- استایل‌های سفارشی -->
+    <style>
+        /* ===== استایل‌های منوی دسته‌بندی ===== */
+        .category-list ul li ul {
+            padding-right: 20px;
+        }
+        
+        .category-list ul li ul li a {
+            color: #0e0e0eff !important;
+            font-weight: 400;
+        }
+        
+        .category-list ul li ul li ul li a {
+            color: #707070ff !important;
+            font-weight: 300;
+        }
+        
+        .category-list ul li ul li ul li ul li a {
+            color: #6b6b6bff !important;
+            font-weight: 300;
+        }
+        
+        .parent-arrow {
+            color: #f7858d;
+            font-weight: bold;
+            margin-left: 5px;
+            font-size: 16px;
+        }
+        
+        .category-list ul li a {
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-list ul li ul li a .parent-arrow {
+            color: #bbb;
+        }
+    </style>
 </header>
