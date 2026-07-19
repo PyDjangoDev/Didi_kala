@@ -13,7 +13,12 @@ didikala | product details
         <div class="title-breadcrumb-special dt-sl mb-3">
             <div class="breadcrumb dt-sl">
                 <nav>
-                    <a href="#">{{product.category.title}}</a>
+                    <a href="#">{% if product.category.title %}
+                        {{product.category.title}}
+                        {% else %} 
+                            بدون دسته بندی
+                        {% endif %}</a>
+    
                     <a href="#">{{product.brand}}</a>
                     <a href="#">{{product.title}}</a>
                 </nav>
@@ -53,9 +58,15 @@ didikala | product details
                         <div class="product-carousel owl-carousel" data-slider-id="1">
                             <!-- نمایش عکس اصلی خود محصول -->
                             <div class="item">
+                                {% if product.image %}
                                 <a class="gallery-item" href="{{ product.image.url }}" data-fancybox="gallery1">
                                     <img src="{{ product.image.url }}" alt="{{ product.title }}">
                                 </a>
+                                {% else %}
+                                <a class="gallery-item" href="/static/assets/img/no-image.png" data-fancybox="gallery1">
+                                    <img src="/static/assets/img/no-image.png" alt="{{ product.title }}">
+                                </a>
+                                {% endif %}
                             </div>
 
                             <!-- نمایش تصاویر آلبوم محصول -->
@@ -73,9 +84,16 @@ didikala | product details
                             <ul class="product-thumbnails owl-thumbs ml-2" data-slider-id="1">
                                 <!-- تصویر کوچک اصلی -->
                                 <li class="owl-thumb-item active">
+                                    {% if product.image %}
                                     <a href="{{ product.image.url }}">
-                                        <img src="{{ product.image.url }}" alt="Product Main">
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}">
                                     </a>
+                                    {% else %}
+                                    <a href="/static/assets/img/no-image.png">
+                                        <img src="/static/assets/img/no-image.png" alt="{{ product.title }}">
+                                    </a>
+                                    
+                                    {% endif %}
                                 </li>
 
                                 <!-- تصاویر کوچک آلبوم -->

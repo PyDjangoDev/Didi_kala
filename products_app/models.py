@@ -5,6 +5,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 class Category(MPTTModel):
     title = models.CharField(max_length=30)
     description = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='category/%Y/%m/%d/',null=True,blank=True)
     parent = TreeForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -49,7 +50,7 @@ class Product(models.Model):
     off = models.IntegerField(null=True,blank=True)
     off_deadline = models.DateTimeField(null=True, blank=True, verbose_name='مهلت تخفیف')
     brand = models.CharField(max_length=25)
-    category = models.ForeignKey(Category,on_delete=models.CASCADE,null=True,blank=True,related_name='products')
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name='products')
     count = models.IntegerField(default=1)
     slug = models.SlugField(max_length=100,null=True,blank=True,unique=True,allow_unicode=True)
     is_active = models.BooleanField(default=True)

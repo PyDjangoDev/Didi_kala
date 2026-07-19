@@ -497,20 +497,35 @@ didikala | home page
                     </div>
                     <div class="category-section-slider dt-sl">
                         <div class="category-slider owl-carousel">
+                            {% for category in categories %}
                             <div class="item">
-                                <a href="#" class="promotion-category">
-                                    <img src="/static/assets/img/category/notebook-computer.png" alt="">
-                                    <h4 class="promotion-category-name">کالای دیجیتال</h4>
-                                    <h6 class="promotion-category-quantity">۱۵۶۰۰۰ کالا</h6>
+                                <a href="{% url 'categories_page' category.id %}" class="promotion-category">
+                                    {% if category.image %}
+                                        <img src="{{ category.image.url }}" alt="{{ category.title }}">
+                                    {% else %}
+                                        <img src="/static/assets/img/no-image.png" alt="{{ category.title }}">
+                                    {% endif %}
+                                    <h4 class="promotion-category-name">{{ category.title }}</h4>
+                                    <h6 class="promotion-category-quantity">
+                                        {% if category.total_products_count %}
+                                            {{ category.total_products_count }}
+                                        {% else %}
+                                            ۰
+                                        {% endif %}
+                                        کالا
+                                    </h6>
                                 </a>
                             </div>
-                            <div class="item">
+                            {% endfor %}
+
+                            {% comment %} <div class="item">
                                 <a href="#" class="promotion-category">
                                     <img src="/static/assets/img/category/lifeline-in-a-heart-outline.png" alt="">
                                     <h4 class="promotion-category-name">آرایشی، بهداشتی و سلامت</h4>
                                     <h6 class="promotion-category-quantity">۴۸۰۰۰ کالا</h6>
                                 </a>
-                            </div>
+                            </div> {% endcomment %}
+                            {% comment %} 
                             <div class="item">
                                 <a href="#" class="promotion-category">
                                     <img src="/static/assets/img/category/repair-tools.png" alt="">
@@ -560,7 +575,7 @@ didikala | home page
                                     <h4 class="promotion-category-name">خوردنی و آشامیدنی</h4>
                                     <h6 class="promotion-category-quantity">۲۲۰۰۰ کالا</h6>
                                 </a>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                     </div>
                 </div>

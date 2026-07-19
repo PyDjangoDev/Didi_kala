@@ -350,7 +350,11 @@ didikala | Products
                                         {% endif %}
 
                                         <a class="product-thumb" href="{%url 'id_slug_to_product' product.id  product.slug %}">
+                                            {% if product.image %}
                                             <img src="{{product.image.url}}" alt="{{product.title}}">
+                                            {% else %}
+                                            <img src="/static/assets/img/no-image.png" alt="{{ product.title }}">
+                                            {% endif %}
                                         </a>
                                         <div class="product-card-body">
                                             <div class="add-to-compare">
